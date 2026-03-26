@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v=static_version) }}">
+</head>
+<body class="landing-page">
+    <main class="landing-shell">
+        <nav class="nav-shell fade-up">
+            <a class="brand-mark" href="{{ url_for('index') }}">
+                <span class="brand-icon">ET</span>
+                <span>Expense Tracker</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#imports">Imports</a>
+                <a href="{{ url_for('login') }}">Login</a>
+                <a class="primary-btn" href="{{ url_for('register') }}">Get Started</a>
+            </div>
+        </nav>
+
+        <section class="hero-card fade-up delay-1">
+            <div class="hero-copy">
+                <p class="eyebrow">Future-ready finance</p>
+                <h1>Track every rupee with a smoother, smarter command center.</h1>
+                <p class="hero-text">
+                    Manage daily spending, import Google Pay and bank transactions, and keep a live view of balance,
+                    cash flow, and recent activity inside one sleek dashboard.
+                </p>
+                <div class="hero-actions">
+                    <a class="primary-btn" href="{{ url_for('register') }}">Create account</a>
+                    <a class="ghost-btn" href="{{ url_for('login') }}">Login</a>
+                </div>
+            </div>
+            <div class="hero-panel">
+                <div class="mini-stat">
+                    <span>Live income</span>
+                    <strong>Rs 42,500</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Live expenses</span>
+                    <strong>Rs 18,750</strong>
+                </div>
+                <div class="mini-stat accent">
+                    <span>Safe to spend</span>
+                    <strong>Rs 23,750</strong>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="feature-row fade-up delay-2">
+            <article class="feature-card">
+                <p class="eyebrow">01</p>
+                <h2>Immersive dashboard</h2>
+                <p>See income, expenses, remaining balance, and recent transactions in one futuristic overview.</p>
+            </article>
+            <article class="feature-card">
+                <p class="eyebrow">02</p>
+                <h2>Flexible importing</h2>
+                <p>Bring in Google Pay activity or bank statement CSVs and let the app calculate totals automatically.</p>
+            </article>
+            <article class="feature-card">
+                <p class="eyebrow">03</p>
+                <h2>Fast everyday use</h2>
+                <p>Add transactions, review categories, and export your full timeline without leaving the main workspace.</p>
+            </article>
+        </section>
+
+        <section id="imports" class="hero-card fade-up delay-3">
+            <div class="hero-copy">
+                <p class="eyebrow">Connected workflows</p>
+                <h1>Import first. Analyze instantly.</h1>
+                <p class="hero-text">
+                    Instead of manually typing every payment, use statement files and GPay messages to populate your
+                    tracker quickly while keeping duplicate protection and categorized spending history.
+                </p>
+            </div>
+            <div class="hero-panel">
+                <div class="mini-stat accent">
+                    <span>Google Pay imports</span>
+                    <strong>CSV or pasted UPI messages</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Bank statements</span>
+                    <strong>Debit, credit, amount, balance</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Export ready</span>
+                    <strong>Download full transaction CSV</strong>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-shell">
+            <div class="footer-main">
+                <strong>Expense Tracker</strong>
+                <p>Track spending, import statement files, and keep your daily money flow clear in one place.</p>
+                <div class="footer-socials">
+                    <span>F</span>
+                    <span>T</span>
+                    <span>G</span>
+                    <span>Y</span>
+                    <span>In</span>
+                </div>
+            </div>
+            <div class="footer-meta">
+                <span>&copy; {{ current_year }} Expense Tracker</span>
+                <div class="footer-bottom-links">
+                    <a href="{{ url_for('index') }}">Home</a>
+                    <a href="#features">About</a>
+                    <a href="{{ url_for('login') }}">Contact</a>
+                    <a href="#imports">Blog</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

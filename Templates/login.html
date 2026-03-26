@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v=static_version) }}">
+</head>
+<body class="auth-page">
+    <main class="auth-shell fade-up">
+        <section class="auth-card">
+            <div class="auth-form-panel">
+                <div class="auth-brand brand-mark">
+                    <div class="brand-icon">ET</div>
+                    <div>
+                        <div>Expense</div>
+                        <div>Tracker</div>
+                    </div>
+                </div>
+
+                <div class="auth-avatar" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21a8 8 0 0 0-16 0"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-stack">
+                            {% for category, message in messages %}
+                                <div class="flash-message {{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('login') }}" class="app-form">
+                    <div>
+                        <label for="username">Username</label>
+                        <input id="username" type="text" name="username" placeholder="Enter username" value="{{ entered_username }}" required>
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input id="password" type="password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="primary-btn full-width">Login</button>
+                </form>
+
+                <div class="form-meta">
+                    <span class="tiny-meta">Secure access to your spending hub</span>
+                    <a class="tiny-meta inline-link" href="{{ url_for('index') }}">Back to home</a>
+                </div>
+                <p class="switch-link">No account yet? <a href="{{ url_for('register') }}">Create one now</a>.</p>
+            </div>
+
+            <div class="auth-copy">
+                <div class="auth-copy-content">
+                    <p class="eyebrow">Futuristic finance</p>
+                    <h1>Welcome.</h1>
+                    <p class="hero-text">
+                        Sign in to a smoother expense tracker with live balance views, Google Pay imports,
+                        bank statement imports, and a sharper dashboard built for daily use.
+                    </p>
+                    <div class="inline-actions">
+                        <a class="ghost-btn" href="{{ url_for('register') }}">Create account</a>
+                    </div>
+                    <p class="auth-note">Track faster. Import smarter. Stay in control.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-shell">
+            <div class="footer-main">
+                <strong>Expense Tracker</strong>
+                <p>Secure sign-in for your personalized dashboard, imports, and transaction history.</p>
+                <div class="footer-socials">
+                    <span>F</span>
+                    <span>T</span>
+                    <span>G</span>
+                    <span>Y</span>
+                    <span>In</span>
+                </div>
+            </div>
+            <div class="footer-meta">
+                <span>&copy; {{ current_year }} Expense Tracker</span>
+                <div class="footer-bottom-links">
+                    <a href="{{ url_for('index') }}">Home</a>
+                    <a href="{{ url_for('register') }}">About</a>
+                    <a href="{{ url_for('login') }}">Contact</a>
+                    <a href="{{ url_for('register') }}">Blog</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

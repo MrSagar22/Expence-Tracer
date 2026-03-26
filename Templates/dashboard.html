@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v=static_version) }}">
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-shell">
+        <nav class="nav-shell fade-up">
+            <a class="brand-mark" href="{{ url_for('dashboard') }}">
+                <span class="brand-icon">ET</span>
+                <span>Expense Tracker</span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('export_csv') }}">Export CSV</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </nav>
+
+        <header class="topbar fade-up delay-1">
+            <div>
+                <p class="eyebrow">Control room</p>
+                <h1>{{ current_user }}'s finance cockpit</h1>
+                <p class="topbar-copy">
+                    Monitor cash flow, import payments, and keep your spending decisions grounded in a live balance.
+                </p>
+            </div>
+            <div class="inline-actions">
+                <a class="ghost-btn" href="{{ url_for('dashboard', history=1) }}#history">Transaction History</a>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack fade-up delay-1">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="stats-grid fade-up delay-1">
+            <article class="stat-card">
+                <span>Total income</span>
+                <strong>Rs {{ "%.2f"|format(total_income) }}</strong>
+                <p class="metric-copy">All credited funds tracked in your account timeline.</p>
+            </article>
+            <article class="stat-card">
+                <span>Total expense</span>
+                <strong>Rs {{ "%.2f"|format(total_expense) }}</strong>
+                <p class="metric-copy">Every debit, purchase, and outgoing transfer included.</p>
+            </article>
+            <article class="stat-card">
+                <span>Current balance</span>
+                <strong>Rs {{ "%.2f"|format(balance) }}</strong>
+                <p class="metric-copy">Your income minus expenses across the stored history.</p>
+            </article>
+            <article class="stat-card accent">
+                <span>Safe to spend</span>
+                <strong>Rs {{ "%.2f"|format(can_spend) }}</strong>
+                <p class="metric-copy">What remains available before you cross your balance line.</p>
+            </article>
+        </section>
+
+        <section class="content-grid fade-up delay-2">
+            <article class="panel-card">
+                <div class="section-title">
+                    <div>
+                        <p class="eyebrow">Quick add</p>
+                        <h2>Capture a manual transaction</h2>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('add_transaction') }}" class="app-form compact-grid">
+                    <div>
+                        <label for="date">Date</label>
+                        <input id="date" type="date" name="date" value="{{ today }}" required>
+                    </div>
+                    <div>
+                        <label for="amount">Amount</label>
+                        <input id="amount" type="number" step="0.01" min="0.01" name="amount" placeholder="0.00" required>
+                    </div>
+                    <div>
+                        <label for="type">Type</label>
+                        <select id="type" name="type" required>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="category">Category</label>
+                        <input id="category" type="text" name="category" placeholder="Food, Salary, Travel" required>
+                    </div>
+                    <div class="full-span">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4" placeholder="Optional details"></textarea>
+                    </div>
+                    <div class="full-span">
+                        <button type="submit" class="primary-btn">Save transaction</button>
+                    </div>
+                </form>
+                <div class="inline-import">
+                    <div class="inline-import-copy">
+                        <p class="eyebrow">Smart import</p>
+                        <h3>Import any statement file</h3>
+                        <p class="hero-text">
+                            Use one upload for bank statements, Google Pay PDFs, and similar online transaction exports.
+                        </p>
+                    </div>
+                    <form method="POST" action="{{ url_for('import_transactions_file') }}" enctype="multipart/form-data" class="app-form inline-import-form">
+                        <div>
+                            <label for="transaction_file">Statement or transaction file</label>
+                            <input id="transaction_file" type="file" name="transaction_file" accept=".csv,.pdf,application/pdf,text/csv" required>
+                        </div>
+                        <div>
+                            <button type="submit" class="primary-btn">Import transactions</button>
+                        </div>
+                    </form>
+                </div>
+            </article>
+
+            <article class="panel-card insight-card">
+                <div class="section-title">
+                    <div>
+                        <p class="eyebrow">Live insight</p>
+                        <h2>Spending pressure</h2>
+                    </div>
+                </div>
+                <p class="insight-amount">Rs {{ "%.2f"|format(can_spend) }}</p>
+                <p class="hero-text">
+                    This is your currently safe spending zone based on the income and expense records inside the tracker.
+                </p>
+                <div class="progress-meta">
+                    <span>Spending rate</span>
+                    <span>{{ "%.1f"|format(spending_rate) }}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ 100 if spending_rate > 100 else spending_rate }}%;"></div>
+                </div>
+
+                <h3>Recent expenses</h3>
+                <div class="mini-list">
+                    {% if recent_expenses %}
+                        {% for txn in recent_expenses %}
+                            <div class="mini-list-item">
+                                <div>
+                                    <strong>{{ txn["category"] }}</strong>
+                                    <span>{{ txn["date"] }}</span>
+                                </div>
+                                <strong>Rs {{ "%.2f"|format(txn["amount"]) }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-state">No expenses added yet.</p>
+                    {% endif %}
+                </div>
+            </article>
+        </section>
+
+        {% if show_history %}
+        <section class="fade-up delay-3">
+            <article class="panel-card" id="history">
+                <div class="section-title">
+                    <div>
+                        <p class="eyebrow">History</p>
+                        <h2>Transaction history</h2>
+                    </div>
+                    <div class="history-meta">
+                        {% if show_all %}
+                            <span>Showing all {{ total_transactions }} transaction{{ "" if total_transactions == 1 else "s" }}</span>
+                        {% else %}
+                            <span>Page {{ current_page }} of {{ total_pages }}</span>
+                            <span>{{ total_transactions }} total transaction{{ "" if total_transactions == 1 else "s" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if transactions %}
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Source</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for txn in transactions %}
+                                    <tr>
+                                        <td>{{ txn["date"] }}</td>
+                                        <td><span class="tag {{ txn['type'] }}">{{ txn["type"].title() }}</span></td>
+                                        <td>{{ txn["category"] }}</td>
+                                        <td><span class="source-pill {{ txn['source'] }}">{{ source_labels.get(txn["source"], txn["source"].replace("_", " ").title()) }}</span></td>
+                                        <td>{{ txn["description"] or "-" }}</td>
+                                        <td>Rs {{ "%.2f"|format(txn["amount"]) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="history-controls">
+                        {% if show_all %}
+                            <a class="ghost-btn" href="{{ url_for('dashboard', history=1) }}#history">Paginated view</a>
+                        {% else %}
+                            {% if has_previous %}
+                                <a class="ghost-btn" href="{{ url_for('dashboard', history=1, page=current_page - 1) }}#history">Previous</a>
+                            {% else %}
+                                <span class="ghost-btn disabled-btn">Previous</span>
+                            {% endif %}
+
+                            {% if has_next %}
+                                <a class="ghost-btn" href="{{ url_for('dashboard', history=1, page=current_page + 1) }}#history">Next</a>
+                            {% else %}
+                                <span class="ghost-btn disabled-btn">Next</span>
+                            {% endif %}
+
+                            <a class="primary-btn" href="{{ url_for('dashboard', history=1, show='all') }}#history">Show all</a>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">No transactions yet. Start with a manual entry or import your data above.</p>
+                {% endif %}
+            </article>
+        </section>
+        {% endif %}
+    </div>
+    <footer class="site-footer">
+        <div class="footer-shell">
+            <div class="footer-main">
+                <strong>Expense Tracker</strong>
+                <p>Your finance cockpit for manual entries, smart imports, and quick transaction review.</p>
+                <div class="footer-socials">
+                    <span>F</span>
+                    <span>T</span>
+                    <span>G</span>
+                    <span>Y</span>
+                    <span>In</span>
+                </div>
+            </div>
+            <div class="footer-meta">
+                <span>&copy; {{ current_year }} Expense Tracker</span>
+                <div class="footer-bottom-links">
+                    <a href="{{ url_for('dashboard') }}">Home</a>
+                    <a href="{{ url_for('dashboard', history=1) }}#history">About</a>
+                    <a href="{{ url_for('export_csv') }}">Contact</a>
+                    <a href="{{ url_for('dashboard', history=1) }}#history">Blog</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% if show_history %}
+    <script>
+        window.addEventListener("load", function () {
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, "{{ url_for('dashboard') }}");
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
